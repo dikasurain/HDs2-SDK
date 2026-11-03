@@ -365,3 +365,8 @@ FodyWeavers.xsd
 # 发布产物（超过 GitHub 单文件 100MB 限制，不入库）
 publish_single/
 snapshots/
+
+# 备份文件与根目录设计图（仅本地保留）
+*.bak
+/*.png
+/*.jpg
