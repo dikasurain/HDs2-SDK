@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# 发布产物（超过 GitHub 单文件 100MB 限制，不入库）
+publish_single/
+snapshots/
