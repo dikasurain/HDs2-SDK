@@ -1,0 +1,207 @@
+﻿<Window x:Class="HDs2_SDK.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HDs2_SDK"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+    <Window.Resources>
+        <!-- 圆形金属实体按键样式 -->
+        <Style x:Key="EntityButton" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="6,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="root" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <TranslateTransform Y="0"/>
+                            </Grid.RenderTransform>
+                            <Grid.Effect>
+                                <DropShadowEffect Color="#55000000" BlurRadius="5" ShadowDepth="2" Opacity="0.7"/>
+                            </Grid.Effect>
+                            <!-- 金属主体 -->
+                            <Ellipse x:Name="bd" Stroke="#66000000" StrokeThickness="1">
+                                <Ellipse.Fill>
+                                    <RadialGradientBrush GradientOrigin="0.35,0.3">
+                                        <GradientStop Color="#FFD6DADF" Offset="0"/>
+                                        <GradientStop Color="#FFACB2B8" Offset="0.6"/>
+                                        <GradientStop Color="#FF737A82" Offset="1"/>
+                                    </RadialGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <!-- 内圈高光 -->
+                            <Ellipse Stroke="#88FFFFFF" StrokeThickness="1" Margin="3" Fill="Transparent"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="root" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Background="Transparent" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+        <!-- 中间磨砂圆角面板（深色渐变版） -->
+        <Border Width="400" Height="300"
+                CornerRadius="40"
+                BorderBrush="#22FFFFFF"
+                BorderThickness="1"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#FF2A2D35" Offset="0"/>
+                    <GradientStop Color="#FF15171C" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect Color="#22000000"
+                                  BlurRadius="25"
+                                  ShadowDepth="0"
+                                  Opacity="0.8"/>
+            </Border.Effect>
+            <Grid Margin="16,14,16,14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="57*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="43*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 左：状态灯在左列内水平垂直居中，分隔线靠右（贴近表盘） -->
+                <Grid Grid.Column="0" VerticalAlignment="Center">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="0,3" Height="22">
+                            <Ellipse x:Name="LedFault" Width="20" Height="20" Fill="#9CA3AF"/>
+                            <TextBlock Text="故障" Margin="6,0,0,0" Foreground="#D1D5DB" FontSize="20" VerticalAlignment="Center" Width="54" Height="27"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,3" Height="22">
+                            <Ellipse x:Name="LedOverload" Width="20" Height="20" Fill="#9CA3AF"/>
+                            <TextBlock Text="过载" Margin="6,0,0,0" Foreground="#D1D5DB" FontSize="20" VerticalAlignment="Center" Width="54" Height="27"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,3" Height="22">
+                            <Ellipse x:Name="LedRun" Width="20" Height="20" Fill="#22C55E"/>
+                            <TextBlock Text="运行" Margin="6,0,0,0" Foreground="#D1D5DB" FontSize="20" VerticalAlignment="Center" Width="54" Height="27"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Border HorizontalAlignment="Right" Width="1" Height="96" Background="#664A90E2"/>
+                </Grid>
+
+                <!-- 中：表盘与数码管 Z 轴分层（数码管下层，表盘上层，刻度不被遮挡） -->
+                <Grid Grid.Column="1" Width="120" Height="120" VerticalAlignment="Center" Margin="14,0">
+                    <!-- 下层：数码管深色底板 -->
+                    <Border Width="96" Height="30" CornerRadius="8" Background="#FF0A1A0E"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <!-- 下层：数码管 -->
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center">
+                        <StackPanel.LayoutTransform>
+                            <ScaleTransform ScaleX="0.32" ScaleY="0.32"/>
+                        </StackPanel.LayoutTransform>
+                        <local:SevenSegmentDigit x:Name="Digit1" Digit="0"/>
+                        <local:SevenSegmentDigit x:Name="Digit2" Digit="0" Margin="8,0,0,0"/>
+                        <local:SevenSegmentDigit x:Name="Digit3" Digit="0" Margin="8,0,0,0"/>
+                        <local:SevenSegmentDigit x:Name="Digit4" Digit="0" Margin="8,0,0,0"/>
+                        <local:SevenSegmentDigit x:Name="Digit5" Digit="0" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <!-- 上层：表盘（透明背景，ring/刻度/圆球在最上层，从不被遮挡） -->
+                    <Canvas x:Name="GaugeCanvas" Width="120" Height="120"/>
+                </Grid>
+
+                <!-- 右：分隔线靠左（贴近表盘），胶囊在右列内水平垂直居中 -->
+                <Grid Grid.Column="2" VerticalAlignment="Center">
+                    <Border HorizontalAlignment="Left" Width="1" Height="96" Background="#664A90E2"/>
+                    <!-- 正反 / 高低 胶囊 -->
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- 正反胶囊 -->
+                        <Border Height="40" Width="96" CornerRadius="20" Background="#22000000" Padding="3" Margin="0,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="DirForwardCell" Grid.Column="0" CornerRadius="17,0,0,17" Background="#4A90E2">
+                                    <TextBlock Text="正" Foreground="White" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="DirReverseCell" Grid.Column="1" CornerRadius="0,17,17,0">
+                                    <TextBlock Text="反" Foreground="#9CA3AF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                        <!-- 高低胶囊 -->
+                        <Border Height="40" Width="96" CornerRadius="20" Background="#22000000" Padding="3" Margin="0,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="SpeedHighCell" Grid.Column="0" CornerRadius="17,0,0,17" Background="#4A90E2">
+                                    <TextBlock Text="高" Foreground="White" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="SpeedLowCell" Grid.Column="1" CornerRadius="0,17,17,0">
+                                    <TextBlock Text="低" Foreground="#9CA3AF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 分界线 -->
+                <Border Grid.Row="1" Grid.ColumnSpan="3" Height="1" Background="#334A90E2" Margin="0,10"/>
+
+                <!-- 底部：4 个圆形实体按键 + 插口识别光环（等宽分布） -->
+                <Grid Grid.Row="2" Grid.ColumnSpan="3" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" x:Name="BtnStart" Style="{StaticResource EntityButton}" Content="启" HorizontalAlignment="Center"/>
+                    <Button Grid.Column="1" x:Name="BtnStop" Style="{StaticResource EntityButton}" Content="停" HorizontalAlignment="Center"/>
+                    <Button Grid.Column="2" x:Name="BtnSpeedUp" Style="{StaticResource EntityButton}" Content="加" HorizontalAlignment="Center"/>
+                    <Button Grid.Column="3" x:Name="BtnSpeedDown" Style="{StaticResource EntityButton}" Content="减" HorizontalAlignment="Center"/>
+                    <!-- 插口识别光环（实体接口样式） -->
+                    <Grid Grid.Column="4" Width="34" Height="34" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- 金属接口外圈 -->
+                        <Ellipse Stroke="#66000000" StrokeThickness="1">
+                            <Ellipse.Fill>
+                                <RadialGradientBrush GradientOrigin="0.35,0.3">
+                                    <GradientStop Color="#FFD6DADF" Offset="0"/>
+                                    <GradientStop Color="#FFACB2B8" Offset="0.7"/>
+                                    <GradientStop Color="#FF737A82" Offset="1"/>
+                                </RadialGradientBrush>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <!-- 内孔（深色） -->
+                        <Ellipse Margin="5" Fill="#FF14110C"/>
+                        <!-- 光环指示：接入绿 / 未接入灰 -->
+                        <Ellipse x:Name="LedPort" Margin="3" Fill="Transparent" Stroke="#9CA3AF" StrokeThickness="3"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

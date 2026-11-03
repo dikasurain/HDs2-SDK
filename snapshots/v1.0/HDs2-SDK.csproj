@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>HDs2_SDK</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Control\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="SVG\image.png" />
+  </ItemGroup>
+
+  <!-- 排除快照目录，避免被编译 -->
+  <ItemGroup>
+    <Compile Remove="snapshots\**" />
+    <None Remove="snapshots\**" />
+    <Page Remove="snapshots\**" />
+  </ItemGroup>
+
+  <!-- 排除协议模拟工程目录（独立 console 工程，引用同一份 inf_change.cs） -->
+  <ItemGroup>
+    <Compile Remove="Out\ProtocolSim\**" />
+    <None Remove="Out\ProtocolSim\**" />
+  </ItemGroup>
+
+</Project>

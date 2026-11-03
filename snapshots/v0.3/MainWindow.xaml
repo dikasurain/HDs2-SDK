@@ -1,0 +1,160 @@
+﻿<Window x:Class="HDs2_SDK.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HDs2_SDK"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        FontFamily="Microsoft YaHei UI"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+    <Window.Resources>
+        <!-- 素雅灰白圆形按键样式（启/停/设 等独立按钮） -->
+        <Style x:Key="FlatRoundBtn" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="#FFD1D5DB"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="6,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="root" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <TranslateTransform Y="0"/>
+                            </Grid.RenderTransform>
+                            <Grid.Effect>
+                                <DropShadowEffect Color="#66000000" BlurRadius="6" ShadowDepth="2" Opacity="0.6"/>
+                            </Grid.Effect>
+                            <!-- 主体底色（深色融入面板） -->
+                            <Border x:Name="bd" Background="#FF2D3139" CornerRadius="22"/>
+                            <!-- 左上高光边（受光面） -->
+                            <Border BorderBrush="#FF4A525C" BorderThickness="1.5,1.5,0,0" CornerRadius="22"/>
+                            <!-- 右下暗影边（背光面） -->
+                            <Border BorderBrush="#FF15171C" BorderThickness="0,0,1.5,1.5" CornerRadius="22"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#FF383D48"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="root" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="2"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="bd" Property="Background" Value="#FF252830"/>
+                                <Setter TargetName="root" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#66000000" BlurRadius="3" ShadowDepth="1" Opacity="0.35"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="root" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Background="Transparent" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+        <!-- 中间磨砂圆角面板（深色渐变版） -->
+        <Border Width="400" Height="199"
+                CornerRadius="40"
+                BorderBrush="#22FFFFFF"
+                BorderThickness="1"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                RenderOptions.ClearTypeHint="Enabled"
+                TextOptions.TextFormattingMode="Display"
+                TextOptions.TextRenderingMode="ClearType">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#FF2A2D35" Offset="0"/>
+                    <GradientStop Color="#FF15171C" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect Color="#22000000"
+                                  BlurRadius="25"
+                                  ShadowDepth="0"
+                                  Opacity="0.8"/>
+            </Border.Effect>
+            <Grid Margin="16,14,16,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 左：状态显示 + 转速输入（3 行等高，与右侧对称） -->
+                <Grid Grid.Column="0" VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="48"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse x:Name="LedStatus" Width="20" Height="20" Fill="#9CA3AF"/>
+                        <TextBlock x:Name="LblStatus" Text="待机" Margin="8,0,0,0" Foreground="#E5E7EB" FontSize="18" FontWeight="Medium" VerticalAlignment="Center" Width="54"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse x:Name="LedSpeed" Width="20" Height="20" Fill="#4A90E2"/>
+                        <TextBlock x:Name="LblSpeed" Text="低速" Margin="8,0,0,0" Foreground="#E5E7EB" FontSize="18" FontWeight="Medium" VerticalAlignment="Center" Width="54"/>
+                    </StackPanel>
+                    <!-- 转速输入：时钟式微嵌入凹槽（右侧到分隔线间距=左侧到面板边框距离=16px） -->
+                    <Grid Grid.Row="2" Width="78" Height="38" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border Background="#0C0E13" CornerRadius="6"/>
+                        <Border CornerRadius="6" BorderBrush="#05070A" BorderThickness="1,1,0,0"/>
+                        <Border CornerRadius="6" BorderBrush="#3A4453" BorderThickness="0,0,1,1"/>
+                        <TextBox x:Name="TxtSpeed" BorderThickness="0" Background="Transparent"
+                                 Foreground="#D5E0F0" FontSize="14" FontWeight="SemiBold" CaretBrush="#4A90E2"
+                                 VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                                 Margin="6,0" KeyDown="TxtSpeed_KeyDown"/>
+                    </Grid>
+                    <Border HorizontalAlignment="Right" Width="1" Grid.RowSpan="3" Background="#664A90E2"/>
+                </Grid>
+
+                <!-- 中：表盘与数码管 Z 轴分层 -->
+                <Grid Grid.Column="1" Width="120" Height="120" VerticalAlignment="Center" Margin="14,0">
+                    <Border Width="96" Height="30" CornerRadius="8" Background="#FF0A1A0E"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <StackPanel.LayoutTransform>
+                            <ScaleTransform ScaleX="0.32" ScaleY="0.32"/>
+                        </StackPanel.LayoutTransform>
+                        <local:SevenSegmentDigit x:Name="Digit1" Digit="0"/>
+                        <local:SevenSegmentDigit x:Name="Digit2" Digit="0" Margin="8,0,0,0"/>
+                        <local:SevenSegmentDigit x:Name="Digit3" Digit="0" Margin="8,0,0,0"/>
+                        <local:SevenSegmentDigit x:Name="Digit4" Digit="0" Margin="8,0,0,0"/>
+                        <local:SevenSegmentDigit x:Name="Digit5" Digit="0" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <Canvas x:Name="GaugeCanvas" Width="120" Height="120"/>
+                </Grid>
+
+                <!-- 右：启停 / 正反 / 设 按键（3 行等高，与左侧对称） -->
+                <Grid Grid.Column="2" VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="48"/>
+                    </Grid.RowDefinitions>
+                    <Border HorizontalAlignment="Left" Width="1" Grid.RowSpan="3" Background="#664A90E2"/>
+                    <Button Grid.Row="0" x:Name="BtnPower" Style="{StaticResource FlatRoundBtn}" Content="启" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"/>
+                    <Button Grid.Row="1" x:Name="BtnDir" Style="{StaticResource FlatRoundBtn}" Content="正" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"/>
+                    <Button Grid.Row="2" x:Name="BtnSetSpeed" Style="{StaticResource FlatRoundBtn}" Content="设" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"/>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
